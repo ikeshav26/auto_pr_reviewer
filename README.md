@@ -1,1 +1,1 @@
-auto pr reviewer after adding gemini instead of gpt
+auto pr reviewer after adding gemini instead of gpt and granting permissions to write comments on pr
