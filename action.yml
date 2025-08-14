@@ -1,0 +1,12 @@
+name: "Auto PR Reviewer"
+description: "Automatically reviews PRs using GPT"
+author: "Keshav Gilhotra"
+
+inputs:
+  OPENAI_API_KEY:
+    description: "OpenAI API key"
+    required: true
+
+runs:
+  using: "node16"
+  main: "index.js"
