@@ -1,10 +1,10 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const OpenAI = require('openai');
+const { GoogleGenAI } = require('@google/genai'); 
 
 async function run() {
   try {
-    const token = process.env.OPENAI_API_KEY;
+    const token = process.env.GEMINI_API_KEY;
     const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
     const { context } = github;
     const { pull_request } = context.payload;
@@ -13,6 +13,7 @@ async function run() {
       core.setFailed('No PR found');
       return;
     }
+
 
     const diffResponse = await octokit.request(
       'GET /repos/{owner}/{repo}/pulls/{pull_number}',
@@ -26,18 +27,18 @@ async function run() {
 
     const diff = diffResponse.data;
 
-    const openai = new OpenAI({ apiKey: token });
+    
+    const gemini = new GoogleGenAI({ apiKey: token });
 
-    const gptResponse = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: 'You are a senior code reviewer.' },
-        { role: 'user', content: `Review the following PR diff:\n\n${diff}` }
-      ]
+    
+    const geminiResponse = await gemini.models.generateContent({
+      model: 'gemini-2.0-flash-001', 
+      contents: `You are a senior code reviewer.\nReview the following PR diff:\n\n${diff}`
     });
 
-    const reviewComment = gptResponse.choices[0].message.content;
+    const reviewComment = geminiResponse?.text || 'No review generated.';
 
+    
     await octokit.rest.issues.createComment({
       owner: context.repo.owner,
       repo: context.repo.repo,
